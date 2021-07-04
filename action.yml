@@ -2,13 +2,14 @@ name: "Java Release"
 description: "Release a java version"
 
 runs:
-  using: ubuntu-latest 
+  using: "composite" 
 
   steps:
     - uses: actions/checkout@v2
 
     - name: Remove SNAPSHOT from pom.xml  
       run:  sed -i 's/-SNAPSHOT//g' pom.xml
+      shell: bash
 
     - name: Setup Java 15
       uses: joschi/setup-jdk@v2   
@@ -17,6 +18,7 @@ runs:
 
     - name: Build the release jar
       run:  mvn package -Dmaven.test.skip=true
+      shell: bash
 
     - name: Commit the released version
       run: |
@@ -26,11 +28,12 @@ runs:
         git commit -am "Release version $VERSION - Updating the pom.xml"
         git push -f
         echo "v"$VERSION > version.txt
+      shell: bash
 
     - name: Create tag
       run: |
         ls
         cat version.txt | xargs git tag -a $1 -m "Version $1"
         git push --tags
-    
+      shell: bash
   
